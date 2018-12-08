@@ -5,6 +5,7 @@ import validators
 import urllib.request
 from urllib.parse import urlparse
 from wpo import get_html_at_url, make_etree,make_outline, copy_profile_photo_static
+import wpo
 app = flask.Flask(__name__)
 
 
@@ -71,20 +72,60 @@ def view_page():
     open = get_html_at_url(usrarg)
     #print(usrarg)
     html = "<base href="+usrarg+">"+open
+    #print(html)
     etree1 = make_etree(html,usrarg)
+    print("------------------------------------------------------------")
 
+    try:
+        style = flask.request.args["style"]
+    except:
+        style=""
+        pass
+    try:
+        color = flask.request.args["color"]
+    except:
+        color = ""
+        pass
+
+    try:
+        mustache = flask.request.args["beard"]
+    except:
+        mustache = ""
+        pass
+    #print(color)
+    '''
+    if(checked == True):
+        style = "Square"
+    else if()
+
+    '''
     #print(html)
     #print(etree1)
     #print("UTIL copy is fine")
-    path = copy_profile_photo_static(etree1)
+    path = copy_profile_photo_static(etree1,style,color,mustache)
+    #print("path:"+path)
     #filename = path[len(os.getcwd()):]
 
     filename = os.path.basename(path)
-
-    #print(filename)
+    #print("filename+"+filename)
+    #print(os.getcwd())
+    #print("oldpath:"+wpo.oldpath)
+    #print("dict:")
+    #print(wpo.url_to_sha)
     static_url = flask.url_for('static', filename = filename)
-    #print(static_url)
-    return flask.redirect(static_url)
+    #print("static_url:"+static_url)
+    #print(type(html))
+    src = wpo.url_to_sha[wpo.oldpath]
+
+    before = html[:(html.find(src))]
+    after = html[(html.find(src))+len(src):]
+    tempname = static_url[1:].split("/")[1]
+    #print(tempname)
+    temp = flask.url_for('static', filename=filename,_external=True)
+    html = before+temp+after
+    #print(html)
+
+    return html
 
 if __name__ == '__main__':
     app.run(host="127.0.0.1", port=os.environ.get("ECE364_HTTP_PORT", 8000),use_reloader=True, use_evalex=False, debug=True, use_debugger=False)

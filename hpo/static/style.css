@@ -1,0 +1,32 @@
+
+
+
+form{
+    margin:0 auto;
+    width:300px;
+}
+
+
+.simple_rollover {
+    color: #000000;
+    border: #000000 solid 1px;
+    padding: 10px;
+    background-color: #ffffff;
+}
+
+.simple_rollover:hover {
+    color: #ffffff;
+    background-color: #000000;
+}
+
+.rollover{
+
+    color: #000000;
+    border: #000000 solid 1px;
+    padding: 10px;
+    background-color: #ffffff;
+}
+.rollover:hover {
+    color: #ffffff;
+    background-color: #000000;
+}

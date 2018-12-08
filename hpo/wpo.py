@@ -12,6 +12,8 @@ from PIL import Image
 EYE_DATA = "/home/ecegridfs/a/ee364/site-packages/cv2/data/haarcascade_eye.xml"
 FACE_DATA_PATH = "/home/ecegridfs/a/ee364/site-packages/cv2/data/haarcascade_frontalface_default.xml"
 usr_url = ""
+oldpath = ""
+url_to_sha = dict()
 def get_html_at_url(url, charset="UTF-8"):
     global usr_url
     usr_url = url
@@ -149,69 +151,42 @@ def pushd_temp_dir(base_dir=None, prefix="tmp.hpo."):
 @contextlib.contextmanager
 def fetch_images(etree):
     #print("fetch image")
-
+    global url_to_sha
     #print(main.usrarg)
     with pushd_temp_dir():
         #print("inside pushd")
         filename_to_node = collections.OrderedDict()
-        #
-        # Extract the image files into the current directory
-        #
         photo_list = []
         photo_root = etree.findall(".//img")
-        #print(len(photo_root))
-        #print(os.getcwd())
         dir_path = os.getcwd()
         for node in photo_root:
             for elem in node.iter():
-                #print(elem.text_content())
                 if(elem.tag == "img" and elem not in photo_list):
-                    #print(elem.text_content())
                     photo_list.append(elem)
-
-        #print(photo_list)
-        #print(len(photo_list))
         for photo_node in photo_list:
             img_url = photo_node.get("src")
-            #print("a "+img_url)
+            src = img_url
             if(img_url.find("http") == -1):
                 if(img_url.find(usr_url) == -1):
                     img_url = usr_url+img_url
             urlvalidity = validators.url(img_url)
-            #print("valid: "+str(urlvalidity))
-
             if(urlvalidity is True):
-                #print("valid")
                 obj = urllib.request.urlopen(img_url)
                 type = obj.info().get("Content-type")
                 ext = guess_extension(type)
-                #print(ext)
-
                 filename = make_filename(img_url, ext)
-
-                #print(filename)
                 filename = os.path.join(dir_path,filename)
-                #temp_img = urllib.request.urlretrieve(photo_node.get("src"))
+                url_to_sha[filename] = src
+
                 with open(filename,"wb") as outfile:
-                    #print("write sth")
                     outfile.write(urllib.request.urlopen(img_url).read())
                 if(ext == ".gif"):
-                    #print("ext is gif")
-                    #print(filename)
                     im = Image.open(filename)
-
-                    #print("opened")
                     im = im.convert("RGB")
                     filename = filename[:-4]+".jpg"
-                    #print(filename)
-                    #print(im)
-                    #print(os.getcwd())
                     im.save(filename,"JPEG")
-                    print(im)
-                #print("filename: "+filename)
-
                 filename_to_node[filename] = photo_node
-                #print(filename_to_node)
+        #print(url_to_sha)
         yield filename_to_node
 
 
@@ -237,78 +212,144 @@ def get_image_info(filename):
     return dimension_dict
 
     #https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_gui/py_image_display/py_image_display.html
-'''
-def add_glasses(filename, face_info):
+
+def add_glasses(filename, face_info,style,color):
     #print(face_info)
     img = cv2.imread(filename)
-    #print(img)
-    #subprocess.check_output(['display',filename])
-    #print(os.getcwd())
-
-    #eyes_cascade = cv2.CascadeClassifier("hpo/parojos.xml")
     eyes_cascade = cv2.CascadeClassifier("/home/ecegridfs/a/ee364d10/hpo/parojos.xml")
-    #print(eyes_cascade)
-    gray= cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    eyes = eyes_cascade.detectMultiScale(gray, 1.3, 5)
-    x= face_info["x"]
-    y= face_info["y"]
-    w= face_info["w"]
-    h= face_info["h"]
-
     eyes = eyes_cascade.detectMultiScale(img)
-    print(eyes)
-    print(len(eyes))
+    #print(eyes)
+    #print(len(eyes))
+    color_dict = dict()
+    red = (0,0,255)
+    blue = (255,0,0)
+    green = (0,255,0)
+    color_dict["red"] = red
+    color_dict["blue"] = blue
+    color_dict["green"] = green
+    eyes_pos = []
+    if(color == ""):
+        color = "green"
+    if(len(eyes)!=0):
+        ex,ey,ew,eh = eyes[0]
+        #print(ex)
+        #print(ey)
+        #print(ew)
+        #print(eh)
+        #cv2.circle(roi_color, (ex,ey),20, color_dict[color], 2)
+        #cv2.rectangle(img,(ex,ey),(10,ey+eh),color_dict[color],2)
+        if(style == "square"):
+            #print("square")
+            cv2.rectangle(img,(int(ex+ew/2)+4,ey+eh),(ex+ew,ey),color_dict[color],2)
+            cv2.rectangle(img,(ex,ey), (int(ex+ew/2)-4,ey+eh),color_dict[color],2)
+            cv2.line(img,(ex,ey),(ex-10,ey-2),color_dict[color],2)
+            cv2.line(img,(ex+ew,ey),(ex+ew+10,ey-2),color_dict[color],2)
+            cv2.line(img,(int(ex+ew/2 - 4),int(ey+eh/2)), (int(ex+ew/2 + 4),int(ey+eh/2)),color_dict[color],2)
+        elif(style =="circle"):
+            #print("circle")
+            cv2.circle(img,(int(ex+ew/4),int(ey+eh/2)),int(ew/5),color_dict[color],2)
+            cv2.circle(img,(int(ex+3*ew/4),int(ey+eh/2)), int(ew/5),color_dict[color],2)
+            cv2.line(img,(ex,ey),(ex-10,ey-2),color_dict[color],2)
+            cv2.line(img,(ex+ew,ey),(ex+ew+10,ey-2),color_dict[color],2)
+            cv2.line(img,(int(ex+ew/2 - 4),int(ey+eh/2)), (int(ex+ew/2 + 4),int(ey+eh/2)),color_dict[color],2)
 
-    ex,ey,ew,eh = eyes[0]
-    print(ex)
-    print(ey)
-    print(ew)
-    print(eh)
-    #cv2.circle(roi_color, (ex,ey),20, (0,255,0), 2)
-    #cv2.rectangle(img,(ex,ey),(10,ey+eh),(0,255,0),2)
-    cv2.rectangle(img,(int(ex+ew/2)+1,ey+eh),(ex+ew,ey),(0,255,0),2)
-    cv2.rectangle(img,(ex,ey), (int(ex+ew/2)-1,ey+eh),(0,255,0),2)
-    cv2.line(img,(ex,ey),(ex-10,ey-2),(0,255,0),2)
-    cv2.line(img,(ex+ew,ey),(ex+ew+10,ey-2),(0,255,0),2)
-    #print("eyes:"+str(eyes))
-    #img.save(filename,"jpg")
+        #print("eyes:"+str(eyes))
+        #img.save(filename,"jpg")
+
+
+        #print("imwrite:"+filename)
+        cv2.imwrite(filename,img)
     return img
-'''
+
+def add_mustache(filename,mustache_img):
+    faceCascade = cv2.CascadeClassifier(FACE_DATA_PATH)
+    noseCascade = cv2.CascadeClassifier("/home/ecegridfs/a/ee364d10/hpo/Nariz.xml")
+
+    imgM = cv2.imread(mustache_img,-1)
+
+    orig_mask = imgM[:,:,3]
+
+    orig_mask_inv = cv2.bitwise_not(orig_mask)
+
+    imgM = imgM[:,:,0:3]
+    origmh, origmw = imgM.shape[:2]
 
 
 
-def find_profile_photo_filename(filename_to_etree):
-    #print("inside find profile photo")
-    #print(len(filename_to_etree))
+    frame = cv2.imread(filename)
+
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    faces = faceCascade.detectMultiScale(gray,1.3,5)
+    #print(len(faces))
+    for (x, y, w, h) in faces:
+        #print(x)
+        #print(y)
+        ##print(w)
+        #print(h)
+        roi_gray = gray[y:y+h, x:x+w]
+        roi_color = frame[y:y+h, x:x+w]
+        #print(noseCascade.load("/home/ecegridfs/a/ee364d10/hpo/Nariz.xml"))
+        nose = noseCascade.detectMultiScale(roi_gray)
+        for (nx,ny,nw,nh) in nose:
+
+            mw =  3 * nw
+            mh = mw * origmh / origmw
+
+            x1 = nx - int(mw/4)
+            x2 = nx + nw + int(mw/4)
+            y1 = ny + nh - int(mh/2)
+            y2 = ny + nh + int(mh/2)
+
+            mw =int( x2 - x1)
+            mh = int(y2 - y1)
+
+            mustache = cv2.resize(imgM, (mw,mh), interpolation = cv2.INTER_AREA)
+            mask = cv2.resize(orig_mask, (mw,mh), interpolation = cv2.INTER_AREA)
+            mask_inv = cv2.resize(orig_mask_inv, (mw,mh), interpolation = cv2.INTER_AREA)
+
+            roi = roi_color[y1:y2, x1:x2]
+
+            roi_bg = cv2.bitwise_and(roi,roi,mask = mask_inv)
+
+            roi_fg = cv2.bitwise_and(mustache,mustache,mask = mask)
+            dst = cv2.add(roi_bg,roi_fg)
+            roi_color[y1:y2, x1:x2] = dst
+
+    cv2.imwrite(filename,frame)
+    return frame
+
+def find_profile_photo_filename(filename_to_etree,style,color,mustache):
+
     for i in filename_to_etree:
-        print(i)
         dimension_dict = get_image_info(i)
-        #print(len(dimension_dict["faces"]))
         if(len(dimension_dict["faces"])==1):
-            #add_glasses(i,dimension_dict["faces"][0])
-            #print("RETURNED ANYTHING")
+            if(style!=""):
+                add_glasses(i,dimension_dict["faces"][0],style,color)
+            if(mustache!=""):
+                add_mustache(i,"/home/ecegridfs/a/ee364d10/hpo/mustache.jpeg")
+            #print("oldpath:"+i)
+
             return i
 
     return None
 
-def copy_profile_photo_static(etree):
-    #print("indisde copy")
+def copy_profile_photo_static(etree,style,color, mustache):
+    global oldpath
     with fetch_images(etree) as filename_to_node:
-        #print("finish fetch image")
-        answer = find_profile_photo_filename(filename_to_node)
-        #print(answer)
-        #print(len(filename_to_node))
+        answer = find_profile_photo_filename(filename_to_node, style,color,mustache)
+        oldpath = answer
         photo_dir = os.getcwd()
         filename = answer[len(photo_dir):]
-        #print("filename:"+filename)
-        #print(answer)
         os.chdir("..")
         os.chdir("..")
         os.chdir("static")
-        #print(os.getcwd())
         shutil.copyfile(answer,os.getcwd()+filename)
         return os.getcwd()+filename
 '''
+answer = add_mustache("/home/ecegridfs/a/ee364d10/hpo/quinn.jpg","/home/ecegridfs/a/ee364d10/hpo/mustache.jpeg")
+print(answer)
+
 face_info = {'h': 99, 'y': 52, 'x': 23, 'w': 99}
 answer = add_glasses("/home/ecegridfs/a/ee364d10/hpo/templates/quinn.jpg", face_info)
 cv2.imshow('img',answer)

@@ -3,14 +3,36 @@
     <head>
       <meta charset="utf-8">
       <title>Home Page Optometrist</title>
+        <link href="{{url_for('static',filename ='style.css')}}" rel="stylesheet" type="text/css">
     </head>
-    <body>
-      <h1>Home Page</h1>
-      <p>Please input the valid homepage url, except social media website, and get the same looked page.</p>
+    <body background="http://127.0.0.1:10310/static/bg2.jpeg">
+        <header>
+          <div class="bar">
+            <img src="http://127.0.0.1:10310/static/logo.png" width="5%" height="5%" class="logo">
+          </div>
+          <p>Please input the valid homepage url, except social media website, and choose how do you want the profile photo look like.</p>
+        </header>
+      <form method="GET"  action="{{url_for('view_page')}}">
 
-      <form method="GET"  action="{{url_for("view_page")}}">
-        <input type="text" name="url"  size="40">
-        <input type="submit" value="Submit">
+
+            <input type="text" name="url"  size="40">
+          <input type="submit" value="Submit" class="button simple_rollover"/>
+
+        <p>
+            <input type="radio" name="style" value="square" class="option">Square glasses
+            <input type="radio" name="style" value="circle" class="option">Circle glasses
+        </p>
+        <p>
+            <input type="radio" name="color" value="red" class="option">red
+            <input type="radio" name="color" value="blue" class="option">blue
+            <input type="radio" name="color" value="green" class="option">green
+        </p>
+          <p>
+            <input type="checkbox" name="beard" value="mustache" class="option">Mustache<br>
+        </p>
       </form>
+
     </body>
 </html>
+
+

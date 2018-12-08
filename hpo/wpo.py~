@@ -1,0 +1,48 @@
+#!/usr/local/bin/python3.4
+import urllib.request
+
+from lxml.html import HTMLParser, document_fromstring
+
+def get_html_at_url(url, charset="UTF-8"):
+    resp = urllib.request.urlopen(url)
+    bystr = resp.read()
+    try:
+        rtstr = bystr.decode(charset)
+    except UnicodeDecodeError:
+        return "cannot decode(unicodeError), please go back"
+    else:
+        return rtstr
+
+def make_etree(html,url):
+    parser = HTMLParser(encoding="UTF-8")
+    root = document_fromstring(html, parser=parser, base_url=url)
+    return root
+
+
+def make_outline(etree):
+    str = ""
+    for node in etree.iter():
+        if(node.tag == "title"):
+            str = str+node.text_content()
+            str = str+"\n"
+        elif(node.tag == "h1"):
+            str = str+"    "
+            str = str+node.text_content()+"\n"
+        elif(node.tag == "h2"):
+            str = str+"    "
+            str = str+"    "
+            str = str+node.text_content()+"\n"
+            #print(node.text_content())
+        elif(node.tag == "h3"):
+            str = str+"    "
+            str = str+"    "
+            str = str+"    "
+            str = str+node.text_content()+"\n"
+    #print(str)
+    return "<pre>"+str+"</pre>"
+
+
+
+
+
+
