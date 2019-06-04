@@ -99,6 +99,7 @@ def view_page():
     else if()
 
     '''
+
     #print(html)
     #print(etree1)
     #print("UTIL copy is fine")
@@ -122,6 +123,7 @@ def view_page():
     tempname = static_url[1:].split("/")[1]
     #print(tempname)
     temp = flask.url_for('static', filename=filename,_external=True)
+    #print(temp)
     html = before+temp+after
     #print(html)
 

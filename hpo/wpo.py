@@ -9,8 +9,8 @@ import cv2
 from lxml.html import HTMLParser, document_fromstring
 from PIL import Image
 
-EYE_DATA = "/home/ecegridfs/a/ee364/site-packages/cv2/data/haarcascade_eye.xml"
-FACE_DATA_PATH = "/home/ecegridfs/a/ee364/site-packages/cv2/data/haarcascade_frontalface_default.xml"
+EYE_DATA = "/home/jingchen/Desktop/projects/364proj/hpo/static/haarcascade_eye.xml"
+FACE_DATA_PATH = "/home/jingchen/Desktop/projects/364proj/hpo/static/haarcascade_frontalface_default.xml"
 usr_url = ""
 oldpath = ""
 url_to_sha = dict()
@@ -95,7 +95,9 @@ def make_filename(url, extension):
     name = hashlib.sha1(url.encode('utf8'))
     #print(name)
     #print(name.hexdigest())
-    return name.hexdigest()+extension
+    filename = name.hexdigest()+extension
+    #print(filename)
+    return filename
 @contextlib.contextmanager
 def pushd_temp_dir(base_dir=None, prefix="tmp.hpo."):
     '''
@@ -131,6 +133,7 @@ def pushd_temp_dir(base_dir=None, prefix="tmp.hpo."):
         # e.g., "/home/ecegridfs/a/ee364z15/hpo/data"
 
     # Create temp directory
+
     temp_dir_path = tempfile.mkdtemp(prefix=prefix, dir=base_dir)
     #print(temp_dir_path)
 
@@ -216,9 +219,9 @@ def get_image_info(filename):
 def add_glasses(filename, face_info,style,color):
     #print(face_info)
     img = cv2.imread(filename)
-    eyes_cascade = cv2.CascadeClassifier("/home/ecegridfs/a/ee364d10/hpo/parojos.xml")
+    eyes_cascade = cv2.CascadeClassifier(EYE_DATA)
     eyes = eyes_cascade.detectMultiScale(img)
-    #print(eyes)
+    print(eyes)
     #print(len(eyes))
     color_dict = dict()
     red = (0,0,255)
@@ -231,7 +234,9 @@ def add_glasses(filename, face_info,style,color):
     if(color == ""):
         color = "green"
     if(len(eyes)!=0):
-        ex,ey,ew,eh = eyes[0]
+        print(eyes[0])
+        lex,ley,lew,leh = eyes[1]
+        rex,rey,rew,reh = eyes[0]
         #print(ex)
         #print(ey)
         #print(ew)
@@ -240,18 +245,19 @@ def add_glasses(filename, face_info,style,color):
         #cv2.rectangle(img,(ex,ey),(10,ey+eh),color_dict[color],2)
         if(style == "square"):
             #print("square")
-            cv2.rectangle(img,(int(ex+ew/2)+4,ey+eh),(ex+ew,ey),color_dict[color],2)
-            cv2.rectangle(img,(ex,ey), (int(ex+ew/2)-4,ey+eh),color_dict[color],2)
-            cv2.line(img,(ex,ey),(ex-10,ey-2),color_dict[color],2)
-            cv2.line(img,(ex+ew,ey),(ex+ew+10,ey-2),color_dict[color],2)
-            cv2.line(img,(int(ex+ew/2 - 4),int(ey+eh/2)), (int(ex+ew/2 + 4),int(ey+eh/2)),color_dict[color],2)
+            cv2.rectangle(img,(lex,ley),(lex+lew,ley+leh),color_dict[color],2)
+            cv2.rectangle(img,(rex,rey), (rex+lew,rey+leh),color_dict[color],2)
+            cv2.line(img,(lex+lew,int(ley+leh/2)),(rex,int(rey+reh/2)),color_dict[color],2)
+            cv2.line(img,(lex,int(ley+leh/2)),(lex-15,ley),color_dict[color],2)
+            cv2.line(img,(rex+lew,int(rey+reh/2)), (rex+lew+15,rey),color_dict[color],2)
         elif(style =="circle"):
+            pass
             #print("circle")
-            cv2.circle(img,(int(ex+ew/4),int(ey+eh/2)),int(ew/5),color_dict[color],2)
-            cv2.circle(img,(int(ex+3*ew/4),int(ey+eh/2)), int(ew/5),color_dict[color],2)
-            cv2.line(img,(ex,ey),(ex-10,ey-2),color_dict[color],2)
-            cv2.line(img,(ex+ew,ey),(ex+ew+10,ey-2),color_dict[color],2)
-            cv2.line(img,(int(ex+ew/2 - 4),int(ey+eh/2)), (int(ex+ew/2 + 4),int(ey+eh/2)),color_dict[color],2)
+            #cv2.circle(img,(int(ex+ew/4),int(ey+eh/2)),int(ew/5),color_dict[color],2)
+            #cv2.circle(img,(int(ex+3*ew/4),int(ey+eh/2)), int(ew/5),color_dict[color],2)
+            #cv2.line(img,(ex,ey),(ex-10,ey-2),color_dict[color],2)
+            #cv2.line(img,(ex+ew,ey),(ex+ew+10,ey-2),color_dict[color],2)
+            #cv2.line(img,(int(ex+ew/2 - 4),int(ey+eh/2)), (int(ex+ew/2 + 4),int(ey+eh/2)),color_dict[color],2)
 
         #print("eyes:"+str(eyes))
         #img.save(filename,"jpg")
@@ -281,7 +287,7 @@ def add_mustache(filename,mustache_img):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     faces = faceCascade.detectMultiScale(gray,1.3,5)
-    #print(len(faces))
+    print(len(faces))
     for (x, y, w, h) in faces:
         #print(x)
         #print(y)
@@ -338,6 +344,7 @@ def copy_profile_photo_static(etree,style,color, mustache):
     global oldpath
     with fetch_images(etree) as filename_to_node:
         answer = find_profile_photo_filename(filename_to_node, style,color,mustache)
+        #print(answer)
         oldpath = answer
         photo_dir = os.getcwd()
         filename = answer[len(photo_dir):]
