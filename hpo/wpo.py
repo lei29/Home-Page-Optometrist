@@ -253,12 +253,11 @@ def add_glasses(filename, face_info,style,color):
         elif(style =="circle"):
             pass
             #print("circle")
-            #cv2.circle(img,(int(ex+ew/4),int(ey+eh/2)),int(ew/5),color_dict[color],2)
-            #cv2.circle(img,(int(ex+3*ew/4),int(ey+eh/2)), int(ew/5),color_dict[color],2)
-            #cv2.line(img,(ex,ey),(ex-10,ey-2),color_dict[color],2)
-            #cv2.line(img,(ex+ew,ey),(ex+ew+10,ey-2),color_dict[color],2)
-            #cv2.line(img,(int(ex+ew/2 - 4),int(ey+eh/2)), (int(ex+ew/2 + 4),int(ey+eh/2)),color_dict[color],2)
-
+            cv2.circle(img,(int(lex+lew/2),int(ley+leh/2)),int(lew/2),color_dict[color],2)
+            cv2.circle(img,(int(rex+rew/2),int(rey+reh/2)), int(rew/2),color_dict[color],2)
+            cv2.line(img,(lex+lew,int(ley+leh/2)),(rex,int(rey+reh/2)),color_dict[color],2)
+            cv2.line(img,(lex,int(ley+leh/2)),(lex-15,ley),color_dict[color],2)
+            cv2.line(img,(rex+lew,int(rey+reh/2)), (rex+lew+15,rey),color_dict[color],2)
         #print("eyes:"+str(eyes))
         #img.save(filename,"jpg")
 

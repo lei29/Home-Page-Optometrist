@@ -22,6 +22,5 @@ body{
     margin:auto;
     position: absolute;
     top: 20%;
-
     background-image: linear-gradient(to bottom right, lightgreen, lightblue);
 }
