@@ -1,4 +1,6 @@
-
+h1{
+    margin:0 auto;
+}
 
 
 form{
@@ -6,27 +8,20 @@ form{
     width:300px;
 }
 
-
-.simple_rollover {
-    color: #000000;
-    border: #000000 solid 1px;
-    padding: 10px;
-    background-color: #ffffff;
+html{
+    height:100%;
 }
 
-.simple_rollover:hover {
-    color: #ffffff;
-    background-color: #000000;
+body{
+    height:100%;
+    background-image: linear-gradient(to bottom right, lightyellow,lightgreen);
 }
 
-.rollover{
+.card{
+    width:22rem;
+    margin:auto;
+    position: absolute;
+    top: 20%;
 
-    color: #000000;
-    border: #000000 solid 1px;
-    padding: 10px;
-    background-color: #ffffff;
-}
-.rollover:hover {
-    color: #ffffff;
-    background-color: #000000;
+    background-image: linear-gradient(to bottom right, lightgreen, lightblue);
 }
