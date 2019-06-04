@@ -11,4 +11,3 @@ If no option was selected, then the original website is returned.
 If bad url is input, error msg will be returned. Web will redirect to a blank page with some msg, like "Bad url, please go
 back" etc.
 
-The left up corner logo is drawn by myself. The background img is a free use img.
