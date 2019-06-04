@@ -64,13 +64,10 @@ def scrape_speaker_photos(url, dir_path):
     photo_root = etree.findall(".//div[@class='content']//div[@class='row']")
     for node in photo_root:
         for elem in node.iter():
-            #print(elem.text_content())
             if(elem.tag == "img" and elem not in photo_list):
-                #print(elem.text_content())
                 photo_list.append(elem)
 
             if(elem.get('href') and '@' in elem.text_content()):
-                #print(elem.text_content())
                 email_list.append(elem.text_content())
 
     for photo_node in photo_list:
@@ -79,24 +76,17 @@ def scrape_speaker_photos(url, dir_path):
         type = obj.info().get("Content-type")
         ext = guess_extension(type)
         filename = make_filename(img_url, ext)
-        #print(filename)
         filename = os.path.join(dir_path,filename)
-        #temp_img = urllib.request.urlretrieve(photo_node.get("src"))
         with open(filename,"wb") as outfile:
             outfile.write(urllib.request.urlopen(img_url).read())
 
 
-    #print(photo_list)
-    #print(len(photo_list))
 
 
 def make_filename(url, extension):
-    #print(url)
     name = hashlib.sha1(url.encode('utf8'))
-    #print(name)
-    #print(name.hexdigest())
+
     filename = name.hexdigest()+extension
-    #print(filename)
     return filename
 @contextlib.contextmanager
 def pushd_temp_dir(base_dir=None, prefix="tmp.hpo."):
@@ -153,11 +143,8 @@ def pushd_temp_dir(base_dir=None, prefix="tmp.hpo."):
 
 @contextlib.contextmanager
 def fetch_images(etree):
-    #print("fetch image")
     global url_to_sha
-    #print(main.usrarg)
     with pushd_temp_dir():
-        #print("inside pushd")
         filename_to_node = collections.OrderedDict()
         photo_list = []
         photo_root = etree.findall(".//img")
@@ -189,7 +176,6 @@ def fetch_images(etree):
                     filename = filename[:-4]+".jpg"
                     im.save(filename,"JPEG")
                 filename_to_node[filename] = photo_node
-        #print(url_to_sha)
         yield filename_to_node
 
 
@@ -237,32 +223,21 @@ def add_glasses(filename, face_info,style,color):
         print(eyes[0])
         lex,ley,lew,leh = eyes[1]
         rex,rey,rew,reh = eyes[0]
-        #print(ex)
-        #print(ey)
-        #print(ew)
-        #print(eh)
-        #cv2.circle(roi_color, (ex,ey),20, color_dict[color], 2)
-        #cv2.rectangle(img,(ex,ey),(10,ey+eh),color_dict[color],2)
+
         if(style == "square"):
-            #print("square")
             cv2.rectangle(img,(lex,ley),(lex+lew,ley+leh),color_dict[color],2)
             cv2.rectangle(img,(rex,rey), (rex+lew,rey+leh),color_dict[color],2)
             cv2.line(img,(lex+lew,int(ley+leh/2)),(rex,int(rey+reh/2)),color_dict[color],2)
             cv2.line(img,(lex,int(ley+leh/2)),(lex-15,ley),color_dict[color],2)
             cv2.line(img,(rex+lew,int(rey+reh/2)), (rex+lew+15,rey),color_dict[color],2)
         elif(style =="circle"):
-            pass
-            #print("circle")
+
             cv2.circle(img,(int(lex+lew/2),int(ley+leh/2)),int(lew/2),color_dict[color],2)
             cv2.circle(img,(int(rex+rew/2),int(rey+reh/2)), int(rew/2),color_dict[color],2)
             cv2.line(img,(lex+lew,int(ley+leh/2)),(rex,int(rey+reh/2)),color_dict[color],2)
             cv2.line(img,(lex,int(ley+leh/2)),(lex-15,ley),color_dict[color],2)
             cv2.line(img,(rex+lew,int(rey+reh/2)), (rex+lew+15,rey),color_dict[color],2)
-        #print("eyes:"+str(eyes))
-        #img.save(filename,"jpg")
 
-
-        #print("imwrite:"+filename)
         cv2.imwrite(filename,img)
     return img
 
@@ -288,13 +263,9 @@ def add_mustache(filename,mustache_img):
     faces = faceCascade.detectMultiScale(gray,1.3,5)
     print(len(faces))
     for (x, y, w, h) in faces:
-        #print(x)
-        #print(y)
-        ##print(w)
-        #print(h)
+
         roi_gray = gray[y:y+h, x:x+w]
         roi_color = frame[y:y+h, x:x+w]
-        #print(noseCascade.load("/home/ecegridfs/a/ee364d10/hpo/Nariz.xml"))
         nose = noseCascade.detectMultiScale(roi_gray)
         for (nx,ny,nw,nh) in nose:
 
@@ -352,34 +323,4 @@ def copy_profile_photo_static(etree,style,color, mustache):
         os.chdir("static")
         shutil.copyfile(answer,os.getcwd()+filename)
         return os.getcwd()+filename
-'''
-answer = add_mustache("/home/ecegridfs/a/ee364d10/hpo/quinn.jpg","/home/ecegridfs/a/ee364d10/hpo/mustache.jpeg")
-print(answer)
 
-face_info = {'h': 99, 'y': 52, 'x': 23, 'w': 99}
-answer = add_glasses("/home/ecegridfs/a/ee364d10/hpo/templates/quinn.jpg", face_info)
-cv2.imshow('img',answer)
-cv2.waitKey(0)
-
-filename = "/home/ecegridfs/a/ee364d10/hpo/templates/quinn.jpg"
-get_image_info(filename)
-
-#print(answer)
-
-
-subprocess.check_output(['display',filename])
-
-answer = get_image_info("image.jpg")
-print(answer)
-
-url = "http://alexquinn.org"
-
-html = get_html_at_url(url)
-html = "<base href="+url+">"+html
-etree1 = make_etree(html,url)
-#print(html)
-#print(etree1)
-path = copy_profile_photo_static(etree1)
-print("path:"+path)
-
-'''
