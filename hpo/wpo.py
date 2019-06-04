@@ -268,7 +268,7 @@ def add_glasses(filename, face_info,style,color):
 
 def add_mustache(filename,mustache_img):
     faceCascade = cv2.CascadeClassifier(FACE_DATA_PATH)
-    noseCascade = cv2.CascadeClassifier("/home/ecegridfs/a/ee364d10/hpo/Nariz.xml")
+    noseCascade = cv2.CascadeClassifier("/home/jingchen/Desktop/projects/364proj/hpo/static/Nariz.xml")
 
     imgM = cv2.imread(mustache_img,-1)
 
@@ -332,7 +332,7 @@ def find_profile_photo_filename(filename_to_etree,style,color,mustache):
             if(style!=""):
                 add_glasses(i,dimension_dict["faces"][0],style,color)
             if(mustache!=""):
-                add_mustache(i,"/home/ecegridfs/a/ee364d10/hpo/mustache.jpeg")
+                add_mustache(i,"/home/jingchen/Desktop/projects/364proj/hpo/static/mustache.jpeg")
             #print("oldpath:"+i)
 
             return i
