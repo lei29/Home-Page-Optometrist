@@ -5,13 +5,13 @@ The face detection was done by using OpenCV library.
 
 After download, follow the commands to install the required packages.
 
-First activate the virtual environment.
+## First activate the virtual environment.  
 source faceenv/bin/activate
 
-Use the requirements.txt to install the required packages.
+## Use the requirements.txt to install the required packages.  
 pip3 install -r requirements.txt
 
-Start the app
+## Start the app  
 python main.py
 
 
